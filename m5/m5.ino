@@ -45,11 +45,13 @@ void setup(){
   bme.begin(0x76);
 
   client.setCACert(ca);
-  client.connect("api.daco.dev", 443);
 }
 
 void loop() {
-  if(client) {
+  if (!client.connected()) {
+    M5.Lcd.fillScreen(TFT_RED);
+    client.connect("api.daco.dev", 443);
+  } else {
     M5.Lcd.fillScreen(TFT_GREEN);
     sprintf(cont, "{\"temp\":\"%f\",\"humid\":\"%f\",\"pressure\":\"%f\"}", bme.readTemperature(), bme.readHumidity(), bme.readPressure());
     client.printf(
@@ -62,8 +64,5 @@ void loop() {
     , strlen(cont));
     client.print(cont);
     delay(1000);
-  } else {
-    M5.Lcd.fillScreen(TFT_RED);
-    client.connect("api.daco.dev", 443);
   }
 }

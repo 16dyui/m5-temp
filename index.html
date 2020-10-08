@@ -86,6 +86,7 @@
 		window.addEventListener('load', function() {
 			var ctx = document.getElementById('myChart').getContext('2d');
 			var chart;
+			$.ajaxSetup({ cache: false });
 			$.get("temp.txt").then(function(data) {
 				json = data.split('\n');
 				temp = [];
