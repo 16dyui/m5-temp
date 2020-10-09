@@ -31,7 +31,7 @@ Adafruit_BME280 bme;
 WiFiClientSecure client;
 
 void setup(){
-  WiFi.begin("SSID", "PASSWORD");
+  WiFi.begin("GUEST2", "00000000");
   Wire.begin();
   M5.begin();
   Serial.begin(9600);
@@ -44,10 +44,12 @@ void setup(){
 
   bme.begin(0x76);
 
+  // 接続するクライアントのルート証明書がないとそもそもハンドシェイクできない
   client.setCACert(ca);
 }
 
 void loop() {
+  // 一度接続すれば何度もデータ送信できるが途中で切断されるときがあるためその場合再接続する
   if (!client.connected()) {
     M5.Lcd.fillScreen(TFT_RED);
     client.connect("api.daco.dev", 443);
@@ -63,6 +65,15 @@ void loop() {
       "\n"
     , strlen(cont));
     client.print(cont);
-    delay(1000);
+    // ヘッダーの受信をまたずに再送信をすると途中で送信できなくなるためヘッダーが受信できるのを待つ
+    while (client.connected()) {
+      String line = client.readStringUntil('\n');
+      if (line == "\r") {
+        Serial.println("headers received");
+        // 上記までの処理で約50ms程度かかるため950ms待って1秒周期でデータを送る
+        delay(950);
+        break;
+      }
+    }
   }
 }
