@@ -152,44 +152,41 @@
 			});
 			var jqxhr;
 			func = function() {
-				if (jqxhr) {
-					func();
-					return;
-				}
-				jqxhr = $.get("temp.txt").then(function(data) {
-					s = data.split('\n');
-					e = $.parseJSON(s[s.length - 2]);
-					$(".nix").removeClass(function(index, className) {
-						return (className.match(/\bnix-\S+/g) || []).join(' ');
+				if(!jqxhr) {
+					jqxhr = $.get("temp.txt").then(function(data) {
+						s = data.split('\n');
+						e = $.parseJSON(s[s.length - 2]);
+						$(".nix").removeClass(function(index, className) {
+							return (className.match(/\bnix-\S+/g) || []).join(' ');
+						});
+						temp = Math.round(e.data.temp) + "";
+						humid = Math.round(e.data.humid) + "";
+						pressure = Math.round(e.data.pressure) + "";
+						$('td:nth-of-type(1)>i:first-of-type').addClass('nix-' + temp.substring(0, 1));
+						$('td:nth-of-type(1)>i:last-of-type').addClass('nix-' + temp.substring(1, 2));
+						$('td:nth-of-type(2)>i:first-of-type').addClass('nix-' + humid.substring(0, 1));
+						$('td:nth-of-type(2)>i:last-of-type').addClass('nix-' + humid.substring(1, 2));
+						$('td:nth-of-type(3)>i:nth-of-type(1)').addClass('nix-' + pressure.substring(0, 1));
+						$('td:nth-of-type(3)>i:nth-of-type(2)').addClass('nix-' + pressure.substring(1, 2));
+						$('td:nth-of-type(3)>i:nth-of-type(3)').addClass('nix-' + pressure.substring(2, 3));
+						$('td:nth-of-type(3)>i:nth-of-type(4)').addClass('nix-' + pressure.substring(3, 4));
+						if(chart.data.datasets[3].data.slice(-1)[0] !== e.time) {
+							chart.data.datasets[0].data.push(e.data.temp);
+							chart.data.datasets[0].data.shift();
+							chart.data.datasets[1].data.push(e.data.humid);
+							chart.data.datasets[1].data.shift();
+							chart.data.datasets[2].data.push(e.data.pressure);
+							chart.data.datasets[2].data.shift();
+							chart.data.datasets[3].data.push(e.time);
+							chart.data.datasets[3].data.shift();
+							chart.update();
+						}
+						jqxhr = false;
+					}, function(data) {
+						jqxhr = false;
 					});
-					temp = Math.round(e.data.temp) + "";
-					humid = Math.round(e.data.humid) + "";
-					pressure = Math.round(e.data.pressure) + "";
-					$('td:nth-of-type(1)>i:first-of-type').addClass('nix-' + temp.substring(0, 1));
-					$('td:nth-of-type(1)>i:last-of-type').addClass('nix-' + temp.substring(1, 2));
-					$('td:nth-of-type(2)>i:first-of-type').addClass('nix-' + humid.substring(0, 1));
-					$('td:nth-of-type(2)>i:last-of-type').addClass('nix-' + humid.substring(1, 2));
-					$('td:nth-of-type(3)>i:nth-of-type(1)').addClass('nix-' + pressure.substring(0, 1));
-					$('td:nth-of-type(3)>i:nth-of-type(2)').addClass('nix-' + pressure.substring(1, 2));
-					$('td:nth-of-type(3)>i:nth-of-type(3)').addClass('nix-' + pressure.substring(2, 3));
-					$('td:nth-of-type(3)>i:nth-of-type(4)').addClass('nix-' + pressure.substring(3, 4));
-					jqxhr = false;
-					if(chart.data.datasets[3].data.slice(-1)[0] !== e.time) {
-						chart.data.datasets[0].data.push(e.data.temp);
-						chart.data.datasets[0].data.shift();
-						chart.data.datasets[1].data.push(e.data.humid);
-						chart.data.datasets[1].data.shift();
-						chart.data.datasets[2].data.push(e.data.pressure);
-						chart.data.datasets[2].data.shift();
-						chart.data.datasets[3].data.push(e.time);
-						chart.data.datasets[3].data.shift();
-						chart.update();
-					}
-				}, function(data) {
-					jqxhr = false;
-				});
+				}	
 			}
-			func();
 			setInterval(func, 500);
 		});
 	</script>
