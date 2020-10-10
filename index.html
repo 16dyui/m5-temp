@@ -155,7 +155,12 @@
 				if(!jqxhr) {
 					jqxhr = $.get("temp.txt").then(function(data) {
 						s = data.split('\n');
-						e = $.parseJSON(s[s.length - 2]);
+                        s = s[s.length - 2];
+						if(!s) {
+						    jqxhr = false;
+						    return;
+						}
+						e = $.parseJSON(s);
 						$(".nix").removeClass(function(index, className) {
 							return (className.match(/\bnix-\S+/g) || []).join(' ');
 						});
